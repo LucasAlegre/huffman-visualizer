@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Código de Huffman</title>
+    <meta name="description" content="Visualização passo a passo do algoritmo de Huffman para códigos prefix-free ótimos.">
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <div class="progress" aria-hidden="true"><div id="progressBar" class="progress-bar"></div></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <h1>Código de Huffman</h1>
+        <span id="exampleName" class="example-current"></span>
+      </div>
+      <div class="top-actions">
+        <button id="pseudoBtn" class="btn ghost" type="button" aria-pressed="false" aria-controls="pseudoPanel">Pseudocódigo</button>
+        <div class="menu-wrap">
+          <button id="examplesBtn" class="btn ghost" type="button" aria-expanded="false" aria-controls="examplesMenu">Exemplos <span aria-hidden="true">▾</span></button>
+          <div id="examplesMenu" class="menu" hidden>
+            <p class="menu-title">Exemplos</p>
+            <div id="exampleList" class="example-list"></div>
+            <hr>
+            <p class="menu-title">Seu texto ou seus pesos</p>
+            <form id="customForm" class="menu-form">
+              <input id="customInput" class="text-input" type="text" autocomplete="off" spellcheck="false" placeholder="abracadabra  ou  A:3 B:2 C:6" aria-label="Texto ou pesos">
+              <button class="btn primary" type="submit">Usar</button>
+            </form>
+            <p id="customHint" class="menu-hint">Um texto usa a frequência de cada caractere (␣ = espaço). Pesos: <code>símbolo:peso</code> separados por espaço ou vírgula. De 2 a 16 símbolos.</p>
+            <hr>
+            <p class="menu-title">Pesos aleatórios</p>
+            <label class="menu-field">
+              <span>Símbolos</span>
+              <input id="symbolCount" type="range" min="3" max="12" value="7">
+              <output id="symbolCountValue" for="symbolCount">7</output>
+            </label>
+            <button id="randomBtn" class="btn primary block" type="button">Gerar pesos aleatórios</button>
+          </div>
+        </div>
+        <button id="helpBtn" class="btn ghost icon" type="button" aria-label="Ajuda">?</button>
+      </div>
+    </header>
+
+    <main id="layout" class="layout">
+      <aside id="pseudoPanel" class="panel pseudo-panel" hidden aria-label="Pseudocódigo">
+        <h2>Pseudocódigo</h2>
+        <div class="pseudo">
+          <p class="pseudo-head"><b>procedure</b> <span class="proc">Huffman</span>(<i>Σ</i>, <i>p</i>)</p>
+          <ol id="pseudoLines" class="pseudo-lines">
+            <li data-line="in" class="meta nonum"><b>Entrada:</b> alfabeto <i>Σ</i> e tabela <i>p<sub>a</sub></i> para cada símbolo <i>a</i> ∈ <i>Σ</i></li>
+            <li data-line="out" class="meta nonum"><b>Saída:</b> <i>Σ</i>-árvore ótima</li>
+            <li data-line="1"><b>for</b> <i>a</i> ∈ <i>Σ</i> <b>do</b></li>
+            <li data-line="2" class="in1"><i>T<sub>a</sub></i> ← árvore contendo um nodo rotulado <i>a</i></li>
+            <li data-line="3" class="in1"><i>P</i>(<i>T<sub>a</sub></i>) ← <i>p<sub>a</sub></i></li>
+            <li data-line="4"><i>F</i> ← {<i>T<sub>a</sub></i>}<sub><i>a</i>∈<i>Σ</i></sub></li>
+            <li data-line="5"><b>while</b> <i>F</i> contém 2 ou mais árvores <b>do</b></li>
+            <li data-line="6" class="in1"><i>T</i><sub>1</sub> ← árvore de menor <i>P</i></li>
+            <li data-line="7" class="in1"><i>T</i><sub>2</sub> ← árvore de segundo menor <i>P</i></li>
+            <li data-line="8" class="in1"><i>F</i> ← <i>F</i> \ {<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>}</li>
+            <li data-line="9" class="in1"><i>T</i><sub>3</sub> ← composição de <i>T</i><sub>1</sub> e <i>T</i><sub>2</sub></li>
+            <li data-line="10" class="in1"><i>P</i>(<i>T</i><sub>3</sub>) ← <i>P</i>(<i>T</i><sub>1</sub>) + <i>P</i>(<i>T</i><sub>2</sub>)</li>
+            <li data-line="11" class="in1"><i>F</i> ← <i>F</i> ∪ {<i>T</i><sub>3</sub>}</li>
+            <li data-line="12"><b>Retorne</b> a única árvore em <i>F</i></li>
+          </ol>
+        </div>
+      </aside>
+
+      <section class="stage" aria-label="Floresta F">
+        <div class="sets" aria-live="polite">
+          <div class="set"><span class="set-name">F</span>: <span id="forestSize"></span></div>
+          <div class="set"><span class="set-name">Σ</span>: <span id="alphabetSize"></span></div>
+        </div>
+        <div class="tree-wrap">
+          <svg id="forest" class="forest" role="img" aria-label="Floresta de árvores do algoritmo de Huffman"></svg>
+        </div>
+        <ul class="legend">
+          <li><span class="swatch node-leaf"></span><span>símbolo (peso e código abaixo)</span></li>
+          <li><span class="swatch node-internal"></span><span>nodo interno com <i>P</i>(<i>T</i>)</span></li>
+          <li><span class="swatch node-pick"></span><span><i>T</i><sub>1</sub> e <i>T</i><sub>2</sub> (menores <i>P</i>)</span></li>
+          <li><span class="swatch node-new"></span><span><i>T</i><sub>3</sub> (recém-composta)</span></li>
+          <li><span class="swatch line-path"></span><span>código do símbolo sob o mouse</span></li>
+        </ul>
+      </section>
+
+      <aside class="panel side-panel" aria-label="Estado do algoritmo">
+        <section class="side-block">
+          <h2>Fila de prioridade <i>F</i></h2>
+          <p class="side-sub">árvores ordenadas por <i>P</i> (a primeira tem o menor peso); empates pela ordem de criação</p>
+          <div id="heap" class="heap"></div>
+        </section>
+        <section class="side-block">
+          <h2>Tabela de códigos</h2>
+          <p class="side-sub">cada composição acrescenta um bit à <b>esquerda</b> dos códigos de <i>T</i><sub>1</sub> e <i>T</i><sub>2</sub></p>
+          <table class="code-table">
+            <thead>
+              <tr><th>símbolo</th><th>peso</th><th>código</th><th>bits</th></tr>
+            </thead>
+            <tbody id="codeBody"></tbody>
+          </table>
+          <div id="cost" class="cost" aria-live="polite"></div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="controls">
+      <p id="message" class="message" aria-live="polite"></p>
+      <div class="control-row">
+        <button id="resetBtn" class="btn ghost" type="button" title="Voltar ao início (Home)">⟲ Reiniciar</button>
+        <button id="prevBtn" class="btn ghost" type="button" title="Passo anterior (←)">◀ Voltar</button>
+        <button id="nextBtn" class="btn primary" type="button" title="Próximo passo (→ ou espaço)">Avançar ▶</button>
+        <button id="autoBtn" class="btn ghost" type="button" title="Execução automática (A)">▶▶ Automático</button>
+        <select id="speedSelect" class="select" aria-label="Velocidade">
+          <option value="1800">Lento</option>
+          <option value="1100" selected>Normal</option>
+          <option value="550">Rápido</option>
+        </select>
+        <span id="stepCounter" class="step-counter"></span>
+      </div>
+    </footer>
+
+    <dialog id="helpDialog" class="dialog">
+      <h2>Como usar</h2>
+      <ul>
+        <li><b>Avançar / Voltar</b> executa o algoritmo um passo por vez (teclas <kbd>→</kbd> / <kbd>←</kbd> ou <kbd>espaço</kbd>).</li>
+        <li><b>Automático</b> avança sozinho (tecla <kbd>A</kbd>); <b>Reiniciar</b> volta ao início (<kbd>Home</kbd>).</li>
+        <li><b>Pseudocódigo</b> mostra a linha executada em cada passo (tecla <kbd>P</kbd>).</li>
+        <li><b>Exemplos</b> carrega os exemplos das aulas, um texto ou pesos digitados por você, ou pesos aleatórios.</li>
+        <li>Cada iteração tem dois passos: escolher <i>T</i><sub>1</sub> e <i>T</i><sub>2</sub>, as duas árvores de menor <i>P</i> (em laranja), e compor <i>T</i><sub>3</sub> (em verde). A aresta da esquerda vale <b>0</b> e a da direita vale <b>1</b>.</li>
+        <li>O custo Σ <i>p<sub>a</sub></i> · |código(<i>a</i>)| cresce exatamente <i>P</i>(<i>T</i><sub>3</sub>) a cada composição, pois todos os símbolos de <i>T</i><sub>3</sub> ganham um bit.</li>
+        <li>Passe o mouse sobre uma folha ou uma linha da tabela para ver o caminho (o código) do símbolo.</li>
+      </ul>
+      <form method="dialog"><button class="btn primary" type="submit">Fechar</button></form>
+    </dialog>
+
+    <script src="js/examples.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
