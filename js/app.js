@@ -85,7 +85,6 @@
     symbols.forEach(s => { leafOf[s.sym] = make(s.sym, s.w, null, null); });
     const n = symbols.length;
     const sum = symbols.reduce((acc, s) => acc + s.w, 0);
-    const swap = new Set(def.swap || []);
     const codes = Object.fromEntries(symbols.map(s => [s.sym, '']));
     const sums = [];
     const out = [];
@@ -115,9 +114,7 @@
         `A floresta <i>F</i> começa com ${n} árvores. <span class="tip">Por enquanto todo código é vazio: o custo é 0.</span>`
     });
 
-    let iter = 0;
     while (F.length >= 2) {
-      iter++;
       const order = F.slice().sort((a, b) => (nodes[a].w - nodes[b].w) || (a - b));
       const [t1, t2] = order;
       const w1 = nodes[t1].w;
@@ -132,12 +129,10 @@
           (tie ? ' <span class="tip">Empate de pesos: escolhemos a árvore criada primeiro. Qualquer escolha gera um código ótimo.</span>' : '')
       });
 
-      const swapped = swap.has(iter);
-      const left = swapped ? t2 : t1;
-      const right = swapped ? t1 : t2;
-      const t3 = make(null, w1 + w2, left, right);
-      nodes[left].leaves.forEach(s => { codes[s] = `0${codes[s]}`; });
-      nodes[right].leaves.forEach(s => { codes[s] = `1${codes[s]}`; });
+      // T1 (menor P) sempre à esquerda (bit 0) e T2 à direita (bit 1).
+      const t3 = make(null, w1 + w2, t1, t2);
+      nodes[t1].leaves.forEach(s => { codes[s] = `0${codes[s]}`; });
+      nodes[t2].leaves.forEach(s => { codes[s] = `1${codes[s]}`; });
       const at = Math.min(F.indexOf(t1), F.indexOf(t2));
       F = F.filter(id => id !== t1 && id !== t2);
       F.splice(at, 0, t3);
@@ -147,9 +142,7 @@
         lines: [8, 9, 10, 11],
         t1, t2, t3,
         msg: `<b>Linhas 8–11:</b> ${T(1)} e ${T(2)} saem de <i>F</i> e viram filhos de ${T(3)}, com <i>P</i>(${T(3)}) = ${fmt(w1)} + ${fmt(w2)} = <b>${fmt(w1 + w2)}</b>; ${T(3)} entra em <i>F</i>. ` +
-          (swapped
-            ? `Como nos slides, ${T(2)} fica à esquerda (bit 0) e ${T(1)} à direita (bit 1).`
-            : `${T(1)} fica à esquerda (bit 0) e ${T(2)} à direita (bit 1).`) +
+          `${T(1)} fica à esquerda (bit 0) e ${T(2)} à direita (bit 1).` +
           ` <span class="tip">Os ${nodes[t3].leaves.length} símbolos de ${T(3)} ganham um bit à esquerda do código: o custo aumenta ${fmt(w1 + w2)}.</span>`
       });
     }

@@ -1,7 +1,5 @@
 // Exemplos e leitura de entradas (texto ou pesos digitados, pesos aleatórios).
-// Cada exemplo: { id, name, description, symbols: [[símbolo, peso], ...], swap?, text? }
-// swap: iterações (1, 2, ...) em que T2 fica à esquerda na composição, para
-// reproduzir as árvores dos slides; a ordem dos filhos não altera o custo.
+// Cada exemplo: { id, name, description, symbols: [[símbolo, peso], ...], text? }
 (function () {
   'use strict';
 
@@ -14,15 +12,13 @@
       id: 'aula22-1',
       name: 'Exemplo da aula 22',
       description: '4 símbolos · frequências em %',
-      symbols: [['A', 60], ['B', 25], ['C', 10], ['D', 5]],
-      swap: [1, 2, 3]
+      symbols: [['A', 60], ['B', 25], ['C', 10], ['D', 5]]
     },
     {
       id: 'aula22-2',
       name: 'Outro exemplo da aula 22',
       description: '6 símbolos · pesos 3, 2, 6, 8, 2, 6',
-      symbols: [['A', 3], ['B', 2], ['C', 6], ['D', 8], ['E', 2], ['F', 6]],
-      swap: [5]
+      symbols: [['A', 3], ['B', 2], ['C', 6], ['D', 8], ['E', 2], ['F', 6]]
     },
     {
       id: 'clrs',
